@@ -4,3 +4,10 @@ __pycache__/
 
 # 本地克隆源仓库副本（不参与本仓库跟踪）
 /hamster-skin-skill/
+
+# self-improve 项目级日志
+.learnings/
+
+# 本地 agent 指令文件（不入库）
+/AGENTS.md
+/CLAUDE.md

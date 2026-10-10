@@ -41,8 +41,9 @@ const CHAPTER_N = parseInt(arg('chapter', '0'), 10) || 0;
 const ONLY = arg('only', '');
 const TIMEOUT = parseInt(arg('timeout', '15'), 10) || 15;
 const DEVICE = arg('device', 'sim-android-0001');
-const JAR = '/tmp/legado-sim-cookies.txt';
+const JAR = path.join(require('os').tmpdir(), `legado-sim-cookies-${process.pid}.txt`);
 try { fs.unlinkSync(JAR); } catch (e) {}
+process.on('exit', () => { try { fs.unlinkSync(JAR); } catch (e) {} });
 
 // ---------------- 书源加载 ----------------
 let raw = JSON.parse(fs.readFileSync(srcFile, 'utf8'));
@@ -262,7 +263,7 @@ function extractPath(data, pathStr) {
 function evalHtmlRule(rule, htmlText) {
   let cheerio;
   try { cheerio = require('cheerio'); }
-  catch (e) { throw new Error('HTML/CSS 规则需要 cheerio: 在脚本目录执行 npm install cheerio'); }
+  catch (e) { throw new Error('HTML/CSS 规则需要 cheerio: npm install cheerio（全局安装时设置 NODE_PATH）'); }
   const $ = cheerio.load(String(htmlText || ''));
   const hashIdx = rule.indexOf('##');
   const head = hashIdx >= 0 ? rule.slice(0, hashIdx) : rule;

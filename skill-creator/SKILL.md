@@ -87,6 +87,18 @@ Skills use three loading levels:
 - Prefer concise examples over verbose explanations
 - Keep essential workflow in SKILL.md; move detailed reference material to separate files
 
+### Portability (cross-agent)
+
+Skills in this format (agentskills.io) load in Minis, pi, Codex, Claude Code, Antigravity and other agents. Target them in that priority order and keep them portable:
+
+- Frontmatter: only `name` + `description` are required everywhere; `name` must match the directory name (lowercase kebab-case). Extra keys (`metadata`, `compatibility`) are optional and may be ignored.
+- Never hardcode host-specific absolute paths (app sandboxes, a particular agent's home dir, `/tmp`). Reference bundled files relative to the skill directory (`scripts/foo.py`), and let the agent decide where inputs/outputs live — usually the user's working directory.
+- Don't write runtime data into the skill directory; it may be read-only, symlinked, or shared by several agents. Use the project directory or a user-level data dir, configurable by flag/env var.
+- Don't depend on one agent's private tools (e.g. a specific memory or file-read tool). Describe the intent ("record this in the agent's long-term memory") and let the host pick the mechanism.
+- Invoke scripts through an interpreter (`python3 scripts/x.py`, `sh scripts/x.sh`, `node scripts/x.js`) so they work without execute permission; list runtime dependencies.
+
+Install locations, by priority: Minis skills dir (scans one level of `<name>/SKILL.md`, no nesting); `~/.agents/skills/` (pi, Codex); `~/.claude/skills/` (Claude Code); `~/.gemini/config/skills/` (Antigravity). Project scope: `.agents/skills/` or `.claude/skills/`.
+
 ### What NOT to Include
 
 Do not create extraneous files: README.md, INSTALLATION_GUIDE.md, CHANGELOG.md, etc. The skill should only contain what an AI agent needs to do the job.

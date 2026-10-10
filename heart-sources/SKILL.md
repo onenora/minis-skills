@@ -65,6 +65,8 @@ description: 当用户提到「用心读书」「用心书源」「Read With Hea
 
 ## Convert and verify
 
+依赖：Python 3、Node.js。`scripts/` 相对本技能目录；书源与产物放在用户工作目录（或模型判断的合适位置），不要写进技能目录。
+
 ```bash
 python3 scripts/source-check.py <书源.json>   # 必填字段 + 旧字段 + 引擎/分页警告；退出码 0 PASS / 1 strict-warn / 2 FAIL
 node scripts/heart-verify.js <书源.json> --keyword 关键词   # jsonpath 类源模拟链路（搜索→详情→目录→正文→发现+筛选）；xpath 源走页面样本

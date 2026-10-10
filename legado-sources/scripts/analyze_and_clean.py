@@ -1,8 +1,23 @@
-import json, re, urllib.parse, collections, hashlib
+"""Legado 书源批量清洗：去重、分组、风格标准化。
+
+用法:
+    python3 analyze_and_clean.py <书源.json> [-o 输出目录] [--group-prefix 前缀] [--comment 说明]
+
+输出目录缺省为输入文件同级的 book_source_cleanup/，内含
+cleaned_sources.json / summary.json / report.txt。
+"""
+import argparse, json, re, urllib.parse, collections, hashlib
 from pathlib import Path
 
-SRC = Path('/var/minis/attachments/uploads/书源_77个.json')
-OUTDIR = Path('/var/minis/workspace/book_source_cleanup')
+ap = argparse.ArgumentParser(description='Legado 书源批量去重、分组、风格标准化')
+ap.add_argument('src', type=Path, help='书源 JSON 数组文件')
+ap.add_argument('-o', '--outdir', type=Path, help='输出目录（缺省：输入文件同级 book_source_cleanup/）')
+ap.add_argument('--group-prefix', default='', help='分组前缀，如 "我的"，生成 "我的::小说::CSS"')
+ap.add_argument('--comment', default='已完成去重、分组、风格标准化', help='写入 bookSourceComment 的说明')
+args = ap.parse_args()
+
+SRC = args.src
+OUTDIR = args.outdir or SRC.parent / 'book_source_cleanup'
 OUTDIR.mkdir(parents=True, exist_ok=True)
 
 data = json.loads(SRC.read_text(encoding='utf-8'))
@@ -110,8 +125,9 @@ for item in sorted(unique, key=lambda x: (-x['_score'], x['_index'])):
 
 for item in final:
     item['bookSourceName'] = item['_clean_name'] or item.get('bookSourceName') or '未命名书源'
-    item['bookSourceGroup'] = f"Minis::{item['_type_name']}::{item['_style']}"
-    item['bookSourceComment'] = '由 Minis 统一整理；作者: minis；已完成去重、分组、风格标准化'
+    group = f"{item['_type_name']}::{item['_style']}"
+    item['bookSourceGroup'] = f"{args.group_prefix}::{group}" if args.group_prefix else group
+    item['bookSourceComment'] = args.comment
     item['enabledExplore'] = bool(item.get('enabledExplore', False))
     item['enabledCookieJar'] = bool(item.get('enabledCookieJar', False))
     item['customOrder'] = int(item.get('customOrder') or 0)
@@ -151,4 +167,4 @@ summary = {
     'duplicates:',
     *[f"- {row['reason']}: keep #{row['keep']} drop #{row['drop']}" for row in duplicates[:100]],
 ]), encoding='utf-8')
-print('done')
+print(f'done: {len(data)} → {len(final)} → {OUTDIR}')

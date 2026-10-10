@@ -91,6 +91,8 @@ description: 当用户提到「香色」「香色闺阁」「Xiangse」「Standa
 
 ## 转换
 
+依赖：Node.js。`scripts/` 相对本技能目录；书源与产物放在用户工作目录（或模型判断的合适位置），不要写进技能目录。
+
 ```bash
 node scripts/xbs.js decode in.xbs out.json     # xbs → json
 node scripts/xbs.js encode in.json out.xbs     # json → xbs

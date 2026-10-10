@@ -3,7 +3,7 @@ name: legado-sources
 description: 当用户提到「阅读书源」「Legado」「Legado 书源」「写阅读源」时触发。注意区分：阅读/Legado ≠ 用心读书/Read With Heart ≠ 香色/Xiangse，三者书源格式互不兼容。只做 Legado/阅读 3.0 **文本书源（小说）**，兼容 iOS 阅读与安卓阅读，段评可选，视频/漫画/聚合/音视频不做。
 ---
 
-# Legado Book Source Minis
+# Legado Book Source
 
 Only Legado（阅读 3.0）text novel sources (`bookSourceType: 0`)。跨 iOS 阅读 + 安卓阅读。Fail closed: 没有 legado-sim 全链路 + 官方 App 实测不报 `pass`。视频/漫画/音视频/聚合源一概不做。
 
@@ -16,7 +16,7 @@ Only Legado（阅读 3.0）text novel sources (`bookSourceType: 0`)。跨 iOS �
   {
     "bookSourceUrl": "https://example.com",
     "bookSourceName": "Example",
-    "bookSourceGroup": "Minis::小说::CSS",
+    "bookSourceGroup": "小说::CSS",
     "bookSourceType": 0,
     "searchUrl": "https://example.com/search?q={{key}}",
     "ruleSearch":   { "bookList": "$.items[*]", "name": "$.title", "bookUrl": "$.url" },
@@ -80,13 +80,14 @@ Only Legado（阅读 3.0）text novel sources (`bookSourceType: 0`)。跨 iOS �
 
 ## Convert and verify
 
-依赖：Node.js（legado-sim.js）。
+依赖：Node.js（legado-sim.js）、Python 3（analyze_and_clean.py）。`scripts/` 相对本技能目录；书源与产物放在用户工作目录（或模型判断的合适位置），不要写进技能目录。
 
 ```bash
 node scripts/legado-sim.js <书源.json>                          # 端到端: 搜索→详情→目录→正文
 node scripts/legado-sim.js <书源.json> --search 关键词 --book 2  # 指定关键词/书序
 node scripts/legado-sim.js <书源.json> --only search             # 只跑 search|detail|toc|content
 node scripts/legado-sim.js <书源.json> --page 2 --chapter 5      # 翻页/章节
+python3 scripts/analyze_and_clean.py <书源合集.json> [-o 输出目录]  # 批量去重/分组/风格标准化
 ```
 
 Flow: 生成数组 JSON → legado-sim 端到端跑通 → 交付 `book-source.json` → 用户分别 iOS/安卓 App 实测。
