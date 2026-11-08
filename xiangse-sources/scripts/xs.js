@@ -186,7 +186,8 @@ function lint(J) {
     if (S.lastModifyTime !== undefined && typeof S.lastModifyTime !== 'string') add('warn', 'lastModifyTime 建议字符串');
     if (S.sourceType && !['text', 'comic', 'video', 'audio'].includes(S.sourceType)) add('warn', `未知 sourceType ${S.sourceType}`);
     if (/公众号|微信|[Qq]{2}群|t\.me|tg群|关注|加群/.test(S.sourceName || '')) add('warn', 'sourceName 含宣传信息');
-    if (typeof S.desc === 'string' && [...S.desc].length > 12) add('info', 'desc 会以「sourceName(desc)」显示在换源列表，建议 ≤12 字');
+    if (S.desc === '') add('info', 'desc 为空串会在源列表显示「名()」，无描述时删掉该键（fmt 可处理）');
+    else if (typeof S.desc === 'string' && [...S.desc].length > 12) add('info', 'desc 会以「sourceName(desc)」显示在源列表，建议 ≤12 字');
     if (S.httpHeaders !== undefined && !isObj(S.httpHeaders)) add('fail', 'httpHeaders 须为字典');
     const noRule = (A, f) => isObj(A) && !A[f] && !A.JSParser && A.parserID !== 'JS';
     const indexOnly = noRule(S.chapterList, 'list') && noRule(S.chapterContent, 'content');
@@ -241,7 +242,9 @@ function fmtSource(S0, opt) {
   if (opt.touch || !S.lastModifyTime) S.lastModifyTime = String(Math.floor(Date.now() / 1000));
   else S.lastModifyTime = String(S.lastModifyTime);
   if (!S.miniAppVersion) S.miniAppVersion = '2.56.1';
-  for (const k of ['desc', 'authorId', 'loginUrl']) if (typeof S[k] !== 'string') S[k] = S[k] == null ? '' : String(S[k]);
+  for (const k of ['authorId', 'loginUrl']) if (typeof S[k] !== 'string') S[k] = S[k] == null ? '' : String(S[k]);
+  if (S.desc == null || String(S.desc).trim() === '') delete S.desc; // 空 desc 在源列表显示为「名()」
+  else S.desc = String(S.desc);
   if (!isObj(S.httpHeaders)) S.httpHeaders = {};
   const host = String(S.sourceUrl || '').replace(/\/+$/, '');
   for (const a of ACTIONS) {

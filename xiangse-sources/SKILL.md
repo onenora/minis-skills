@@ -15,7 +15,7 @@ StandarReader 2.56.1 书源；写源以文本（`text`）为主，评估兼容 `
 {
   "站点名": {
     "sourceName": "站点名", "sourceUrl": "https://site", "sourceType": "text",
-    "enable": 1, "weight": "9999", "desc": "", "authorId": "",
+    "enable": 1, "weight": "9999", "authorId": "",
     "lastModifyTime": "<unix秒字符串>", "miniAppVersion": "2.56.1", "loginUrl": "", "httpHeaders": {},
     "searchBook":     { "actionID": "searchBook", "parserID": "DOM", "host": "https://site", "validConfig": "",
                         "requestInfo": "…", "responseFormatType": "html",
@@ -64,7 +64,7 @@ JS 环境：
 - `JSParser`：`function 名(config, params, result){}`；列表返回 `{list:[…]}`，正文返回字符串或 `{content}`，详情返回书籍对象；多页返回 `{nextPageUrl, autoRequestMore:true}`，下一轮 `params.lastResponse` 为上页响应。
 - `requestFilters`：字符串 `key\n标题::值\n…`（多组空行分隔，首选）或数组 `[{key, items:[{title,value}]}]`；取值 `params.filters.key`。
 - `nextPageUrl` 必须配 `moreKeys.maxPage`；正文分页加同章守卫。
-- 换源列表显示为 `sourceName(desc)`：`sourceName` 只写站点名，`desc` ≤12 字或留空，宣传语不进书源。
+- 源列表显示为 `sourceName(desc)`：`sourceName` 只写站点名，`desc` ≤12 字；无描述时删掉 `desc` 键（空串显示为 `名()`），宣传语不进书源。
 
 惯用写法与反例：`references/patterns.md`。
 

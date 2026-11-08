@@ -13,7 +13,7 @@
 - URL 字段原样在 action 间传递，请求时按本 action `host` 补全。
 - JSONPath 确定路径返回标量，含 `..`/`*`/`?()`/切片返回数组。
 - 单字段 JS 异常只置空该字段并告警；webView 请求判 `sim`，由 App 定论。
-- 换源列表显示 `sourceName(desc)`，只列同名书；默认用通用关键词测链路。
+- 源列表显示 `sourceName(desc)`，空串 desc 显示 `()`，故 fmt 删除空 desc；换源只列同名书，默认用通用关键词测链路。
 
 ## 致谢
 
