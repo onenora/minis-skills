@@ -2,21 +2,18 @@
 
 ## xiangse-sources 技能
 
-- `SKILL.md`：Codex/pi/Claude 通用 frontmatter；书源骨架（四核心 action）、硬约束（weight 字符串 / bookWorld 字典禁 categories 数组 / requestFilters 字符串 / 禁 Legado 字段 / responseFormatType 禁 text）、requestInfo（替换式 / `%@result` / `@js:`）、XPath 双斜杠、分页与 moreKeys、解密边界、转换命令、交付状态。
-- `scripts/xbs.js`：XXTEA XBS ↔ JSON CLI（decode/encode/roundtrip/selftest），**零依赖纯 JS**（Node 内置 fs/crypto）。同时导出模块 API：`jsonToXbsBytes` / `xbsToJsonBytes` / `encryptWords` / `decryptWords`。
-- `README.md`：3 行说明。
+- `SKILL.md`：书源骨架（11 个 action 键）、闪退/导入约束、requestInfo / 字段流水线 / JS 环境、从站点推导流程、命令、交付状态。
+- `scripts/xs.js`：零依赖 CLI（Node ≥18）。`lint` 结构检查、`fmt` 规范化并可直出 `.xbs`、`probe` 实网全链路评估（容错 HTML 解析、XPath 1.0 子集、JSONPath 子集、GBK 编解码、`params`/`nativeTool` JS 沙箱、5xx 退避重试）、`try` 单页调规则、`sniff` 站点结构侦察。模块导出 `lint`/`fmtSource`/`readSource`/`writeSource`/`xpath`/`jsonPath`/`fieldValue`/`probeSource` 等。
+- `scripts/xbs.js`：XXTEA XBS ↔ JSON（decode/encode/roundtrip/selftest）。
+- `references/example-xheiyan.json`：从零推导的示例草稿（GET 搜索、og 详情、详情页全目录、正文去导航、分类筛选），`fmt` 后即成品，交付状态 `pass`（App 实测搜索/详情/目录/正文/发现页）。
+- `references/patterns.md`：惯用写法与反例。
 
-依赖：无（Node 内置模块即可）。
+## 引擎语义约定
 
-## 黑岩书源验证（heiyan-m-v1）
-
-用该 skill 对 http://www.heiyan.org/（黑岩阅读）执行写源验证。站点直连超时，改用 Wayback Machine 快照（2020-2021 真实页面）验证，四步链 fixture 模拟通过。
-
-产出：`heiyan/heiyan-m-v1.xbs`（对应 `heiyan-m-v1.json`），sha256 `a25967a509e405ecee5a91558120e2f65f7f7cfc525d9ac8ca57e0a529452952`。
-
-技术要点：host 用手机版 m.heiyan.org（章节链接绝对路径，规避相对链接补全）；搜索 POST `/wap.php?action=search`（wd+objectType=2）；详情/目录用 og meta 与 `.book_info`/`.book_last`；正文 `.page-content`；目录分页由真实「下一页」链接驱动。
-
-验证边界（如实记录）：①搜索结果页无存档，列表结构按同模板书库页推断；②2017 正文快照含广告注入，现站需实测；③官方 App 未实测 → 交付状态 `blocked`（非 pass）。
+- URL 字段原样在 action 间传递，请求时按本 action `host` 补全。
+- JSONPath 确定路径返回标量，含 `..`/`*`/`?()`/切片返回数组。
+- 单字段 JS 异常只置空该字段并告警；webView 请求判 `sim`，由 App 定论。
+- 换源列表显示 `sourceName(desc)`，只列同名书；默认用通用关键词测链路。
 
 ## 致谢
 

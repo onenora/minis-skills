@@ -1,0 +1,59 @@
+{
+  "黑岩阅读网": {
+    "sourceName": "黑岩阅读网",
+    "sourceUrl": "http://www.xheiyan.org",
+    "sourceType": "text",
+    "enable": 1,
+    "weight": "9999",
+    "desc": "示例",
+    "searchBook": {
+      "requestInfo": "/plus/search.php?kwtype=0&searchtype=&q=%@keyWord",
+      "responseFormatType": "html",
+      "list": "//div[contains(@class,\"so\")]",
+      "bookName": "//h2/a",
+      "author": "//div[@class=\"infos\"]/span[1]/a",
+      "cover": "//div[@class=\"pic\"]//img/@src",
+      "wordCount": "//div[@class=\"infos\"]/span[2]||@replace:字数：",
+      "status": "//div[@class=\"infos\"]/span[3]||@replace:状态：",
+      "cat": "//div[@class=\"infos\"]/span[4]||@replace:类别：",
+      "detailUrl": "//h2/a/@href",
+      "moreKeys": { "maxPage": 1 }
+    },
+    "bookDetail": {
+      "responseFormatType": "html",
+      "bookName": "//meta[@property=\"og:novel:book_name\"]/@content",
+      "author": "//meta[@property=\"og:novel:author\"]/@content",
+      "cover": "//meta[@property=\"og:image\"]/@content",
+      "cat": "//meta[@property=\"og:novel:category\"]/@content",
+      "status": "//div[@class=\"infos\"]/span[3]||@replace:状态：",
+      "desc": "//meta[@property=\"og:description\"]/@content||@js:\nreturn result.replace(/^[\\s\\S]*?简介：/, '');",
+      "lastChapterTitle": "//meta[@property=\"og:novel:latest_chapter_name\"]/@content",
+      "updateTime": "//meta[@property=\"og:novel:update_time\"]/@content"
+    },
+    "chapterList": {
+      "responseFormatType": "html",
+      "list": "//div[@class=\"book_list\"]//li",
+      "title": "//a",
+      "url": "//a/@href"
+    },
+    "chapterContent": {
+      "responseFormatType": "html",
+      "content": "//div[@class=\"contentbox\"]||@js:\nreturn result.replace(/上一章\\s*返回目录[\\s\\S]*$/, '').trim();"
+    },
+    "bookWorld": {
+      "排行榜": {
+        "requestInfo": "@js:\nreturn '/' + (params.filters.cat || 'xuanhuan') + '/';",
+        "responseFormatType": "html",
+        "list": "//div[@id=\"cols-2\"]//li",
+        "bookName": "//h3/a",
+        "author": "//a[contains(@title,\"作品\")]||@replace:作品",
+        "status": "//em||@js:\nreturn result.replace(/^.*状态：/, '');",
+        "detailUrl": "//h3/a/@href",
+        "moreKeys": {
+          "maxPage": 1,
+          "requestFilters": "cat\n玄幻::xuanhuan\n仙侠::xianxia\n言情::yanqing\n穿越::chuanyue\n科幻::kehuan\n武侠::wuxia\n军事::junshi\n恐怖::kongbu\n同人::tongrenxiaoshuo"
+        }
+      }
+    }
+  }
+}
