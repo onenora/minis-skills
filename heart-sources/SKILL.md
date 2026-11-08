@@ -12,9 +12,9 @@ description: 当用户提到「用心读书」「用心书源」「Read With Hea
 ```json
 {
   "type": 1, "siteName": "站点", "version": 1, "host": "https://example.com/",
-  "ruleSearch":   { "mode":"http", "engine":"xpath", "method":"GET", "url":"/search?keyword=@{keyword}", "bookList":"//*[@class='list']/*", "bookName":".//a/text()", "bookUrl":".//a/@href" },
+  "ruleSearch":   { "mode":"http", "engine":"xpath", "method":"GET", "url":"/search?keyword=@{keyword}", "bookList":"//*[@class='list']/*", "bookName":"//a", "bookUrl":"//a/@href" },
   "ruleBookInfo": { "mode":"http", "engine":"xpath", "method":"GET", "chapterListUrl":"" },
-  "ruleChapter":  { "mode":"http", "engine":"xpath", "method":"GET", "chapterList":"//*[@id='chapterlist']/li", "chapterName":".//a/text()", "chapterUrl":".//a/@href" },
+  "ruleChapter":  { "mode":"http", "engine":"xpath", "method":"GET", "chapterList":"//*[@id='chapterlist']/li", "chapterName":"//a", "chapterUrl":"//a/@href" },
   "ruleContent":  { "mode":"http", "engine":"xpath", "method":"GET", "contents":"//*[@id='content']/text()" }
 }
 ```
@@ -36,7 +36,7 @@ description: 当用户提到「用心读书」「用心书源」「Read With Hea
 - 听书源：`type` 取 `4`（真实书源在跑）或官方 schema 的 `2`（听书），以 App 实际为准；`ruleContent.playUrl` **必填**，提取音频地址（jsonpath 可深度递归如 `$..content`；相对地址自动按 host 补全）；`contents` 可给文本/歌词（可空）；音频需要请求头时写在 `ruleContent.header`（官方：playUrl 为空时用正文 URL 与正文 Header）。搜索/详情/目录结构与文本源一致，可用 `request @js:` 改 `config.url/params` 区分音书类型（参考源 `tab_type`）。
 
 - `aliasName`：又名/原名；非空时按 `bookName OR aliasName` 匹配并作显示名。
-- 子字段必须相对列表节点：`.//a/text()`、`.//a/@href`。
+- 列表子字段（搜索/目录/发现）：列表项作独立文档求值，写 `//a`、`//a/@href`、`//img/@data-original`；取元素即得文本，不必 `/text()`。单值 URL 规则可能多命中时取首个：`(//a[@rel='next'][contains(@href,'_')]/@href)[1]`。
 - 旧字段禁项：`baseUrl`→`host`；`list`→`chapterList`；`name`→`chapterName`；`url`（章节旧名）→`chapterUrl`（等效兼容，优先新名）；`lines`→`contents`；`encode`→区分 `requestEncode`/`responseEncode`；`imageUrl`→`coverUrl`（官方标废弃）。
 
 ## V2 协议硬约束（最易错）
@@ -52,7 +52,7 @@ description: 当用户提到「用心读书」「用心书源」「Read With Hea
 9. **Native 函数**（App/app/APP 别名等价，另有底层桥 `OS`/`OSDocument`/`OSSocket`）：哈希 `md5`/`sha1..sha512`；`base64.encode/decode/decodeToBytes`；`aes.encrypt/decrypt(data,key,iv)`；`rsa.encrypt(data,pub)/decrypt(data,pri)`；**`bcrypt.genSalt(rounds)/hash(pwd,salt)`**；`nlp.chs/cht`；`string.toGBK/toUTF8`；`strToBytes/bytesToStr`；`time(unix,'yyyy-MM-dd HH:mm:ss')`；`uuid`；`sp.put/get/delete`（put 支持 String/Number/Object/Array/Date，禁 null/undefined/Function；按 siteIdent 隔离持久化）；**`setTimeout/clearTimeout`**；`post/get({url,params,header,timeout})`（Promise，必须 `await`；底层 code 0 成功/401 缺参/402 网络/408 超时；响应含 `responseBody/requestHeader/responseHeader/cookie`）；`socket(url, protocols, headers)`（`open/text/binary/error/close/push/finished`）；`doc(html,clean)`；`handleError`；`showDialog`；`toast`（type 拼写 `succee`）；`log`。**CryptoJS 内置**（加载顺序 prototype.js→crypto.min.js→common.js→publicJavascript，无需导入）；V2 JS 超时 30s（前置 `@js:` 同样 30s；V1 120s）。
 10. **openParams**：定义 `name/key/value/defaultValue/type(input|single|multiple)/options`；运行时 `config.openParams` 是 `[String:String]` 扁平字典（多选逗号分隔，JS 里 `config.openParams.key` 是字符串不是对象）；写回 `window.ParsingBook.setOpenParamValue(key,v)`/`setOpenParamValues({...})`，HTML 事件用 `@setOpenParams('k','v')`。
 11. **分页**：`page` 并发（URL 页码明确）vs `next` 串行（页面下一页链接）。「下一页」≠「下一章」：next 规则限定链接文本含「下一页/下页/继续阅读」，排除「下一章/下章/返回目录」；URL 形态 `123_2.html`(同章) vs `124.html`(下一章)。
-12. **发现（如用）**：顶层 `ruleFinder` 为数组，每项 `uuid`(分类ID) + `name` + `structure`(URL 模板，支持 `@{_类型}`/`${pageIndex}`) + `list`(筛选器列表 `{type,name,list}`，list 为 `[{name,value}]` JSON 串)；`list` 内再用 `bookList/bookName/bookUrl/bookAuthor` 提取书籍。读筛选当前值用 `config.selectList`(数组，推荐) 或 `config.filters`(字典) 或 `config._<type>`(旧习惯)；候选项 list 不通过 selectList 暴露；筛选项 value 逐项实弹，0 结果的剔除。
+12. **发现（如用）**：顶层 `ruleFinder` 为数组，每项 `uuid`(分类ID) + `name` + `structure`(URL 模板，支持 `@{_类型}`/`${pageIndex}`) + `list`(筛选器列表 `{type,name,list}`，list 为 `[{name,value}]` JSON 串，`type` 可中文，模板写 `@{_分类}`) + 公共请求字段(mode/engine/method…) + `pageMax`；同项内 `bookList/bookName/bookUrl/bookAuthor` 提取书籍，封面/简介等放 `ruleExtra`（与搜索同构）。读筛选当前值用 `config.selectList`(数组，推荐) 或 `config.filters`(字典) 或 `config._<type>`(旧习惯)；候选项 list 不通过 selectList 暴露；筛选项 value 逐项实弹，0 结果的剔除。
 
 ## 生成决策
 
