@@ -91,6 +91,41 @@
         {"type": "contains", "text": "token"},
         {"type": "contains", "text": "key"}
       ]
+    },
+    {
+      "id": "web-api-form-encoding",
+      "prompt": "调用 App 本地 Web API 调试书源搜索接口，请求格式和响应怎么处理？",
+      "expected_output": "应说明 POST application/x-www-form-urlencoded;charset=utf-8（空格编码为 %20，非 JSON 体）、仅限回环/RFC1918 地址、直接传 canonical 字段、过滤 ResponsesModel.list 请求轨迹、区分 responseType=1 传输失败与空匹配、超时调用 cancelRequest。",
+      "files": [],
+      "assertions": [
+        {"type": "contains", "text": "x-www-form-urlencoded"},
+        {"type": "contains", "text": "%20"},
+        {"type": "contains", "text": "cancelRequest"},
+        {"type": "contains", "text": "resultData"}
+      ]
+    },
+    {
+      "id": "mrs-vs-json-boundary",
+      "prompt": "帮我把这个加密的 .mrs 书源文件解密转成 .json，再校验一遍。",
+      "expected_output": "应明确说明不存在 .mrs 二进制/加密文件与 .json 的离线互转算法，本地工具与 Web API 只处理明文 UTF-8 JSON（*.mrs.json，支持 flat/ruleData/site 包装）；仅 App 端 /api/site/export 返回 AES 串。",
+      "files": [],
+      "assertions": [
+        {"type": "contains", "text": ".mrs"},
+        {"type": "contains", "text": "UTF-8 JSON"},
+        {"type": "contains", "text": "export"}
+      ]
+    },
+    {
+      "id": "audio-type4-and-sync-async",
+      "prompt": "我想写一个听书源（type 设为 2），并在 ruleSearch 的 request @js: 里 await app.get() 拉接口，可以吗？",
+      "expected_output": "应纠偏两点：V2 网络听书源 type 必须设为 4（2 无效，0 仅兼容回退，3 仅本地）并配 ruleContent.playUrl；普通字段/request/response/前置请求不等待 Promise，不可 await app.get()，只有 toolsUrl/commentUrl @js: 支持异步 await。",
+      "files": [],
+      "assertions": [
+        {"type": "contains", "text": "4"},
+        {"type": "contains", "text": "playUrl"},
+        {"type": "contains", "text": "Promise"},
+        {"type": "contains", "text": "toolsUrl"}
+      ]
     }
   ]
 }
